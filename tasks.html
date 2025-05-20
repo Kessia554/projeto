@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerenciar Tarefas</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #f0f0f0;
+      border-bottom: 2px solid #003366;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 12px 0;
+      margin-bottom: 20px;
+    }
+
+    nav a {
+      color: #003366;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      padding-bottom: 4px;
+      border-bottom: 3px solid transparent;
+    }
+
+    nav a:hover,
+    nav a.active {
+      border-bottom-color: #003366;
+    }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 0 20px 40px 20px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #003366;
+      font-size: 20px;
+      border-bottom: 2px solid #003366;
+      padding-bottom: 4px;
+    }
+
+    form {
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #999;
+      border-radius: 0;
+      font-size: 16px;
+      font-family: inherit;
+      color: #000;
+      background-color: #fff;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 10px 16px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 0;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    button:hover {
+      background-color: #002244;
+    }
+
+    .contador {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .tarefa {
+      border: 1px solid #666;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+    }
+
+    .tarefa h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #000;
+    }
+
+    .tarefa p {
+      margin: 5px 0;
+    }
+
+    .tarefa button {
+      background-color: #990000;
+      margin-right: 10px;
+      border: none;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tarefa button.edit {
+      background-color: #006600;
+    }
+
+    .tarefa button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gestão de Tarefas</h1>
+  </header>
+
+  <nav>
+    <a href="tasks.html" class="active">Tarefas</a>
+    <a href="users.html">Usuários</a>
+    <a href="privileges.html">Privilégios</a>
+  </nav>
+
+  <main>
+    <h2>Cadastrar Nova Tarefa</h2>
+    <form id="formTarefa">
+      <label for="titulo">Título da Tarefa</label>
+      <input type="text" id="titulo" required />
+
+      <label for="descricao">Descrição</label>
+      <textarea id="descricao" rows="4" required></textarea>
+
+      <label for="privilegio">Nível de Privilégio</label>
+      <select id="privilegio" required>
+        <option value="" disabled selected>Selecione</option>
+        <option value="1">1 - Básico</option>
+        <option value="2">2 - Intermediário</option>
+        <option value="3">3 - Avançado</option>
+      </select>
+
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <p class="contador">Privilégios disponíveis: <span id="disponiveis">5</span></p>
+
+    <h2>Lista de Tarefas</h2>
+    <div id="listaTarefas"></div>
+  </main>
+
+  <script>
+    const form = document.getElementById('formTarefa');
+    const lista = document.getElementById('listaTarefas');
+    const disponiveis = document.getElementById('disponiveis');
+    let privilegiosDisponiveis = 5;
+    let tarefas = [];
+    let editando = null;
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const titulo = document.getElementById('titulo').value.trim();
+      const descricao = document.getElementById('descricao').value.trim();
+      const privilegio = document.getElementById('privilegio').value;
+
+      if (privilegiosDisponiveis <= 0 && editando === null) {
+        alert("Não há privilégios disponíveis.");
+        return;
+      }
+
+      if (editando !== null) {
+        tarefas[editando] = { titulo, descricao, privilegio };
+        editando = null;
+      } else {
+        tarefas.push({ titulo, descricao, privilegio });
+        privilegiosDisponiveis--;
+      }
+
+      form.reset();
+      atualizarLista();
+    });
+
+    function atualizarLista() {
+      lista.innerHTML = "";
+      disponiveis.textContent = privilegiosDisponiveis;
+
+      tarefas.forEach((tarefa, index) => {
+        const div = document.createElement('div');
+        div.className = 'tarefa';
+        div.innerHTML = `
+          <h3>${tarefa.titulo}</h3>
+          <p>${tarefa.descricao}</p>
+          <p><strong>Privilégio:</strong> ${tarefa.privilegio}</p>
+          <button onclick="excluirTarefa(${index})">Excluir</button>
+          <button class="edit" onclick="editarTarefa(${index})">Modificar</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    function excluirTarefa(index) {
+      tarefas.splice(index, 1);
+      privilegiosDisponiveis++;
+      atualizarLista();
+    }
+
+    function editarTarefa(index) {
+      const tarefa = tarefas[index];
+      document.getElementById('titulo').value = tarefa.titulo;
+      document.getElementById('descricao').value = tarefa.descricao;
+      document.getElementById('privilegio').value = tarefa.privilegio;
+      editando = index;
+    }
+  </script>
+</body>
+</html>

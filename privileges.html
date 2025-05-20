@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciar Privilégios</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #f2f2f2;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      margin: 0 10px;
+      color: #003366;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #003366;
+      font-size: 20px;
+      border-bottom: 2px solid #003366;
+      padding-bottom: 4px;
+    }
+
+    label, input {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #999;
+      border-radius: 0;
+    }
+
+    button {
+      padding: 10px 16px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 0;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #002244;
+    }
+
+    .privilegio {
+      border: 1px solid #666;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .privilegio h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #000;
+    }
+
+    .privilegio button {
+      background-color: #990000;
+      margin-right: 10px;
+    }
+
+    .privilegio button.edit {
+      background-color: #006600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gestão de Privilégios</h1>
+  </header>
+
+  <nav>
+    <a href="tasks.html">Tarefas</a>
+    <a href="users.html">Usuários</a>
+    <a href="privileges.html">Privilégios</a>
+  </nav>
+
+  <main>
+    <h2>Cadastrar Novo Privilégio</h2>
+    <form id="formPrivilegio">
+      <label for="descricao">Descrição</label>
+      <input type="text" id="descricao" required>
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <h2>Lista de Privilégios</h2>
+    <div id="listaPrivilegios"></div>
+  </main>
+
+  <script>
+    const form = document.getElementById('formPrivilegio');
+    const lista = document.getElementById('listaPrivilegios');
+    let privilegios = [];
+    let editando = null;
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const descricao = document.getElementById('descricao').value;
+
+      if (editando !== null) {
+        privilegios[editando] = descricao;
+        editando = null;
+      } else {
+        privilegios.push(descricao);
+      }
+
+      form.reset();
+      atualizarLista();
+    });
+
+    function atualizarLista() {
+      lista.innerHTML = "";
+      privilegios.forEach((descricao, index) => {
+        const div = document.createElement('div');
+        div.className = 'privilegio';
+        div.innerHTML = `
+          <h3>${descricao}</h3>
+          <button onclick="excluirPrivilegio(${index})">Excluir</button>
+          <button class="edit" onclick="editarPrivilegio(${index})">Modificar</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    function excluirPrivilegio(index) {
+      privilegios.splice(index, 1);
+      atualizarLista();
+    }
+
+    function editarPrivilegio(index) {
+      document.getElementById('descricao').value = privilegios[index];
+      editando = index;
+    }
+  </script>
+</body>
+</html>
